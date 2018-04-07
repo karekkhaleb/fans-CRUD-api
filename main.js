@@ -4,13 +4,11 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
 
-app.use(cors());
-
-var db = 'mongodb://localhost/umuturage';
-var Fan = require('./models/Fan.model')
+var db = 'mongodb://localhost/CRUDSIMPLE';
+var Fan = require('./models/Fan.model');
 mongoose.connect(db);
 
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -54,10 +52,9 @@ app.post('/fans',function(req, res){
 	newFan.aboutMe = req.body.aboutMe;
 	newFan.save(function(err, doc){
 		if(err){
-			res.send('an error occured');
+			res.send('an error occured adding a new fan');
 		}else{
 			res.send(doc);
-			return;
 		}
 	});
 });
@@ -66,11 +63,9 @@ app.delete('/fan/:id',function(req, res){
 	Fan.findOneAndRemove({_id: req.params.id})
 	.exec(function(err, doc){
 		if(err){
-			res.send('sorry an error occured');
-			return;
+			res.send('sorry an error occured deleting the fan');
 		}else{
 			res.send(doc);
-			return;
 		}
 	});
 });
@@ -83,19 +78,22 @@ app.put('/fan/:id',function(req, res){
 		return;
 	}
 	Fan.findOneAndUpdate({_id:req.params.id},
-		{$set:{
-			firstName: req.body.firstName,
-			lastName: req.body.lastName,
-			email: req.body.email,
-			phone: req.body.phone,
-			monthlySupport: req.body.monthlySupport,
-			aboutMe: req.body.aboutMe
-		}},{
+		{
+			$set:
+				{
+					firstName: req.body.firstName,
+					lastName: req.body.lastName,
+					email: req.body.email,
+					phone: req.body.phone,
+					monthlySupport: req.body.monthlySupport,
+					aboutMe: req.body.aboutMe
+				}
+		},
+		{
 			upset: true
 		},function(err, doc){
 			if(err){
 				res.send('an error occured');
-				return;
 			}else{
 				res.json(doc);
 			}
@@ -106,6 +104,19 @@ app.put('/fan/:id',function(req, res){
 
 
 
+app.get('/books',function(req, res){
+	Book.find({})
+	.then(function(doc){
+		if(doc.length < 1){
+			res.send('nothing is in the database');
+			return;
+		}
+		res.send(doc);
+		return;
+	} , function(err){
+		res.send('an error occured');
+	})
+});
 
 
 
